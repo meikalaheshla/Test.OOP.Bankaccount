@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using TEST.OOP.BankAccount.Abstract;
 using TEST.OOP.BankAccount.Utils;
 
@@ -8,8 +9,11 @@ namespace TEST.OOP.BankAccount
     {
         private CentralBank _centralBank;
         Account _account;
+       //sostistuisco il singolo account con un array di account 
+        Account[] _accounts = new Account[0];
+      
 
-        public Account account { get => _account; }
+        public Account account { get => account; }
         public CentralBank CentralBank { get => _centralBank; }
         public CommertialBank(string Name, string Country, CentralBank Bank) : base(Name, Country)
         {
@@ -19,10 +23,38 @@ namespace TEST.OOP.BankAccount
             _code = new Random().Next(10000, 1000000);
 
         }
-        public void CreateAccount(string ClientName, string ClientCF)
+        public void addAccount(Account account)
         {
-            _account = new Account(ClientName, ClientCF, this);
-            //  In un contesto reale avrò un array di Account.
+
+                Account[] accountsExtended = new Account[_accounts.Length + 1];
+                Array.Copy(_accounts, accountsExtended, _accounts.Length);
+                _accounts = accountsExtended;
+                _accounts[_accounts.Length - 1] = account;
+            
+        }
+                public void CreateAccount(string ClientName, string ClientCF)
+        {
+            var account = new Account(ClientName, ClientCF, this);
+            
+            
+        }
+        // FUNZIONALITà REMOVE SENZA RESIZE
+        public void removeAccount(long accountNumber) 
+        {
+            var account = Array.Find(_accounts, account => account.AccountNumber == accountNumber);
+            var index = Array.IndexOf(_accounts,account);
+            Account[] accountsReduced = new Account[_accounts.Length - 1];
+
+            for (int i = 0, j = 0; i < _accounts.Length; i++)
+            {
+                if (_accounts[i] != _accounts[index])
+                {
+                    accountsReduced[j] = _accounts[i];
+                    j++;
+                }
+            }
+            Array.Copy(_accounts, accountsReduced, _accounts.Length);
+            _accounts = accountsReduced;
         }
         public override bool Transfer(Bank to, FIATDespositRequest data)
         {
@@ -40,11 +72,12 @@ namespace TEST.OOP.BankAccount
 
 
                 // stato conto prima
-                this.account.WithdrawFIAT(data._amount);
+                
+                this._account.WithdrawFIAT(data._amount);
                 // confronto le due cifr dopo il prelievo. 
                 Utility.GetAccountInfo(ConsoleColor.Red, this, false, data);
 
-                transferTo.account.DepositFIAT(data._amount);
+                transferTo._account.DepositFIAT(data._amount);
                 Utility.GetAccountInfo(ConsoleColor.Green, transferTo, true, data);
 
 
@@ -59,10 +92,13 @@ namespace TEST.OOP.BankAccount
             return false;
 
         }
+                
+         //DA GESTIRE PER UNO SPECIFICO ACCOUNT NELL'ARRAY
+         
         public void DepositFiat(decimal Amount)
         {
             // Check Client // è biondo! 
-            _account.DepositFIAT(Amount);
+           _account.DepositFIAT(Amount);
         }
         public void DepositCrypto(decimal Amount)
         {
@@ -98,6 +134,7 @@ namespace TEST.OOP.BankAccount
 
             // public decimal Amount { get { return _fiat.AmountInEuro + _crypto.AmountInEuro + _stocks.AmountInEuro; } }
             public decimal Balance { get { return CalcAmount() + calcInterests(); } }
+            
 
             public Account(string ClientName, string ClientCF, CommertialBank commertialBank)
             {

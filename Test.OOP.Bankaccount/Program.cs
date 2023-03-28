@@ -33,7 +33,6 @@ namespace TEST.OOP.BankAccount
 
             // Stampa Saldo iniziale dei due conti  
             Console.WriteLine("-------------------------------------- SALDO INIZIALE -------------------");
-
             Console.WriteLine($" L'account di Vladimir Putin ha un credito di :  {SberBank.account.Balance}");
             Console.WriteLine($" L'account di Bruno Ferreira ha un credito di :  {Unicredit.account.Balance}");
             Console.WriteLine("-------------------------------------------------------------------------------");
